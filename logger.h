@@ -6,11 +6,11 @@ class Logger {
         Logger() {}
         ~Logger() {}
 
-        info(string message) {
+        inline info(string message) {
             cout << "INFO: " << message << endl;
         }
         
-        err(string message) {
+        inline err(string message) {
             cout << "ERROR: " << message << endl;
         }
     private:
