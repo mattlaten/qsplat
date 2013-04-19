@@ -2,10 +2,10 @@ COMPILER=g++
 LIBS=-lglut -lGL -lGLU
 
 all: driver.cpp 
-	$(COMPILER) driver.cpp -o driver $(LIBS)
+	$(COMPILER) driver.cpp -o run $(LIBS)
 
 run: all 
-	./driver
+	./run
 
 clean:
-	rm driver
+	rm run

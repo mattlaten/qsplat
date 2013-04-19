@@ -1,18 +1,18 @@
 #include <iostream>
 #include <string>
 
-class Logger {
+class logger {
     public:
-        Logger() {}
-        ~Logger() {}
+        logger() {}
+        ~logger() {}
 
-        inline info(string message) {
-            cout << "INFO: " << message << endl;
+        inline void info(std::string message) {
+            std::cout << "INFO: " << message << std::endl;
         }
         
-        inline err(string message) {
-            cout << "ERROR: " << message << endl;
+        inline void err(std::string message) {
+            std::cout << "ERROR: " << message << std::endl;
         }
     private:
 
-}
+};
