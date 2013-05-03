@@ -4,6 +4,7 @@
 #include <GL/freeglut.h>
 #include <iostream>
 #include "logger.h"
+
 #define WINDOW_TITLE_PREFIX "OpenGL"
 
 int CurrentWidth = 800,
@@ -37,7 +38,7 @@ void init(int argc, char* argv[]) {
 void initWindow(int argc, char* argv[]) {
     glutInit(&argc, argv);
 
-    glutInitContextVersion(4, 0);
+    glutInitContextVersion(3, 3);
     glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
     glutInitContextProfile(GLUT_CORE_PROFILE);    
     glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, 
