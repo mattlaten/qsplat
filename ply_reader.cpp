@@ -1,4 +1,4 @@
-template <class V,F>
+template <class V, class F>
 class ply_object
 {
     public:
