@@ -4,6 +4,7 @@
 #include <GL/freeglut.h>
 #include <iostream>
 #include "logger.h"
+#include "ply_reader.h"
 
 #define WINDOW_TITLE_PREFIX "OpenGL"
 
@@ -20,11 +21,14 @@ void display(void);
 using namespace std;
 
 logger log;
+ply_reader ply;
+
 
 int main(int argc, char* argv[]) {
-    init(argc, argv);
-    glutMainLoop();
-    exit(EXIT_SUCCESS);
+    ply.read("bunny/reconstruction/bun_zipper.ply");        
+    //init(argc, argv);
+    //glutMainLoop();
+    //exit(EXIT_SUCCESS);
     return 0;
 }
 
