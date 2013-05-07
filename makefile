@@ -8,4 +8,4 @@ run: all
 	./run
 
 clean:
-	rm run *~
+	rm run *~ .*.swp

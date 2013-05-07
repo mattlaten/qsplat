@@ -22,10 +22,10 @@ using namespace std;
 
 logger log;
 ply_reader ply;
-
+splat_model model;
 
 int main(int argc, char* argv[]) {
-    ply.read("bunny/reconstruction/bun_zipper.ply");        
+    ply.read("bunny/reconstruction/bun_zipper.ply", model);        
     //init(argc, argv);
     //glutMainLoop();
     //exit(EXIT_SUCCESS);

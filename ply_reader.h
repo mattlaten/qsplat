@@ -1,7 +1,7 @@
 #include <string>
-#include "ply_model.h"
+#include "splat_model.h"
 
 class ply_reader{
     public:
-        ply_model read(std::string str);
+        void read(std::string str, splat_model & model);
 };
