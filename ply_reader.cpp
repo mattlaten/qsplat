@@ -47,13 +47,33 @@ void ply_reader::read(string str, splat_model & model) {
             //compute normals 
             getline(file, line);
             istringstream iss(line);
-            int num, u, v, w;
-            iss >> num >> u >> v >> w; 
-            //model.splats[u].v -
+            int temp, u, v, w;
+            iss >> temp >> u >> v >> w; 
+            vertex uv = model.splats[u].center - model.splats[v].center;
+            vertex uw = model.splats[u].center - model.splats[w].center;
+            vertex vw = model.splats[v].center - model.splats[w].center; 
+            vertex normal = (uv).cross(uw);
+            model.splats[u].normal += normal;
+            ++num[u];
+            model.splats[v].normal += normal;
+            ++num[v];
+            model.splats[w].normal += normal;
+            ++num[w];
+
             //compute splat width
+            float distuv = uv.mag();
+            float distuw = uw.mag();
+            float distvw = vw.mag();
+
+            model.splats[u].size = max(max(model.splats[u].size, distuv), distuw);
+            model.splats[v].size = max(max(model.splats[v].size, distuv), distvw);
+            model.splats[w].size = max(max(model.splats[w].size, distvw), distuw);
         }
-        //while (file.good()) {
-        //}
+
+        for (int i = 0; i < num_verts; ++i) {
+            model.splats[i].size /= 2;
+            model.splats[i].normal /= num[i];
+        }
     }
     cout << "DONE" << endl;
     file.close();

@@ -1,3 +1,5 @@
+#include <math.h>
+
 class vertex {
     public:
         float x, y, z;
@@ -20,12 +22,34 @@ class vertex {
             return *this;
         }
 
-        const vertex operator+(const vertex& rhs) const {
+        vertex& operator/=(const float scalar) {
+            this->x/=scalar;
+            this->y/=scalar;
+            this->z/=scalar;
+        }
+
+        vertex operator+(const vertex& rhs) {
             return vertex(*this) += rhs;
         }
         
-        const vertex operator-(const vertex& rhs) const {
+        vertex operator-(const vertex& rhs) {
             return vertex(*this) -= rhs;
+        }
+
+        float dot(const vertex& rhs) {
+            return this->x*rhs.x + this->y*rhs.y + this->z*rhs.z; 
+        }
+
+        vertex cross(const vertex& rhs) {
+           return vertex(
+                            this->y*rhs.z - this->z*rhs.y,
+                            this->z*rhs.x - this->x*rhs.z,
+                            this->x*rhs.y - this->y*rhs.x
+                        );
+        }
+
+        float mag(){
+            return sqrt(this->x*this->x + this->y*this->y + this->z*this->z);
         }
 
 };
