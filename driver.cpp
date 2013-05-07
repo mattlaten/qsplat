@@ -63,15 +63,20 @@ void resize(int Width, int Height) {
 }
 
 void display(void) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    //gluPerspective(45.0, CurrentWidth/(float)CurrentHeight, 0.1, 100.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_MODELVIEW);
+    
     glBegin(GL_POINTS);
     glColor3f(1.0, 1.0, 1.0);
-    
     for (vector<splat>::iterator s = model.splats.begin(); s != model.splats.end(); ++s) {
         glVertex3f(s->center.x, s->center.y, s->center.z);
     }
     glEnd();
+
     glFlush();
 }
 
