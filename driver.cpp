@@ -55,29 +55,31 @@ void init(int argc, char* argv[]) {
 
 
     //lighting
-    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    //GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat mat_shininess[] = { 50.0 };
-    GLfloat light_position[] = { 0.0, 0.0, 0.0, 0.0 };
+    GLfloat light_position[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat light_direction[] = { 0.0, -1.0, 0.0, 0.0 };
     glClearColor (0.0, 0.0, 0.0, 0.0);
     glShadeModel (GL_SMOOTH);
 
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+    //glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    //glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-    //glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     
-    glEnable(GL_DEPTH_TEST);
     //glEnable(GL_POINT_SMOOTH);
 
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glEnable(GL_DEPTH_TEST);
 
     glutDisplayFunc(display);
     glutIdleFunc(display);
     glutReshapeFunc(resize);
     glutKeyboardFunc(keyboard);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
     
     cout << "OpenGL Version:" << endl;
     cout << glGetString(GL_VERSION) << endl;
@@ -152,16 +154,18 @@ void display(void) {
 
     glColor3f(1.0, 1.0, 1.0);
     //glPointSize(10.0f);
-    glBegin(GL_POINTS);
+    
     for (vector<splat>::iterator s = model.splats.begin(); s != model.splats.end(); ++s) {
-        glPointSize(s->size*1.0f);
-        //cout << s->size << endl;
-        glNormal3f(s->normal.x, s->normal.y, s->normal.z);
-        //cout << s->normal.x << endl;
-        //cout << s->normal.mag() << endl;
-        glVertex3f(s->center.x, s->center.y, s->center.z);
+        glPointSize(s->size*2*window_width/(s->center-cam_pos).mag());
+        //glPointSize(10.0f);
+        glBegin(GL_POINTS);
+            //cout << s->size << endl;
+            glNormal3f(s->normal.x, s->normal.y, s->normal.z);
+            glVertex3f(s->center.x, s->center.y, s->center.z);
+            //cout << s->normal.x << endl;
+            //cout << s->normal.mag() << endl;
+        glEnd();
     }
-    glEnd();
 
     glutSwapBuffers();
 }
