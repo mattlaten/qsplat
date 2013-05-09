@@ -3,9 +3,10 @@
 #include <string>
 #include <GL/freeglut.h>
 #include <iostream>
+#include <ctime>
 #include "ply_reader.h"
 
-#define WINDOW_TITLE_PREFIX "OpenGL"
+#define WINDOW_TITLE_PREFIX "QSplat"
 
 const double PI = atan(1.0)*4;
 
@@ -22,15 +23,21 @@ int window_width = 800,
 
 float cam_angle = 0.0;
 vertex cam_dir(0.0f, 0.0f, 0.0f);
-//vertex cam_pos(0.0f, 0.2f, 0.5f);
 
 float theta = 3*PI/4;
-float phi = PI/2;
+float phi = PI/4;
 float r = 0.5;
 float diff = PI/180;
 
 vertex cam_pos(r*cos(theta)*sin(phi), r*cos(phi), r*sin(theta)*sin(phi));
 
+
+//-----------------------------------//
+// Clock Variables 
+// ----------------------------------//
+
+clock_t t;
+float fps;
 
 //-----------------------------------//
 // Function Declarations 
@@ -84,16 +91,11 @@ void init(int argc, char* argv[]) {
 
 
     //lighting
-    //GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat mat_shininess[] = { 50.0 };
     GLfloat light_position[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat light_direction[] = { 0.0, -1.0, 0.0, 0.0 };
-    GLfloat light_ambient[] = { 0.0, 1.0, 0.0, 0.0 };
     glClearColor (0.0, 0.0, 0.0, 0.0);
     glShadeModel (GL_SMOOTH);
 
-    //glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-    //glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
     glEnable(GL_LIGHTING);
@@ -101,7 +103,6 @@ void init(int argc, char* argv[]) {
     
     //glEnable(GL_POINT_SMOOTH);
 
-    //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_NORMALIZE);
     glEnable(GL_DEPTH_TEST);
 
@@ -165,15 +166,10 @@ void resize(int w, int h) {
 }
 
 void display(void) {
+    t = clock();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
     glLoadIdentity();
-    /*gluLookAt   (
-                    cam_pos.x, cam_pos.y, cam_pos.z,
-                    cam_dir.x, cam_dir.y, cam_dir.z,
-                    0.0f, 1.0f, 0.0f
-                );
-    */
     gluLookAt   (
                     cam_pos.x, cam_pos.y, cam_pos.z,
                     0, 0, 0,
@@ -181,28 +177,32 @@ void display(void) {
                 );
 
     glColor3f(1.0, 1.0, 1.0);
-    //glPointSize(10.0f);
     
     for (vector<splat>::iterator s = model.splats.begin(); s != model.splats.end(); ++s) {
-        glPointSize(s->size*2*window_width/(s->center-cam_pos).mag());
-        //glPointSize(10.0f);
+        glPointSize(s->size*3.5*window_width/(s->center-cam_pos).mag());
+        if (s->normal.dot(cam_pos) < 0)
+            continue;
         glBegin(GL_POINTS);
-            //cout << s->size << endl;
             glNormal3f(s->normal.x, s->normal.y, s->normal.z);
             glVertex3f(s->center.x, s->center.y, s->center.z);
-            //cout << s->normal.x << endl;
-            //cout << s->normal.mag() << endl;
         glEnd();
     }
 
     glutSwapBuffers();
+    t = clock()-t;
+    char buff[100];
+    sprintf(buff, "%s: %.2ffps", WINDOW_TITLE_PREFIX, fps);
+    glutSetWindowTitle(buff);
+    fps = 1000/(float)t;
+    //cout << fps << endl;
 }
 
 int main(int argc, char* argv[]) {
     ply.read("bunny/reconstruction/bun_zipper.ply", model);        
+    cout << model.min_val.x << " " << model.min_val.y << " " << model.min_val.z << endl;
+    cout << model.max_val.x << " " << model.max_val.y << " " << model.max_val.z << endl;
     init(argc, argv);
     glutMainLoop();
-    cout << "Herp derp" << endl;
     exit(EXIT_SUCCESS);
     return 0;
 }

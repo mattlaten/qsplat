@@ -4,9 +4,29 @@ class vertex {
     public:
         float x, y, z;
        
-        vertex() : x(0), y(0), z(0) {}
+        vertex() : x(0.0f), y(0.0f), z(0.0f) {}
 
         vertex(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
+        
+        vertex(float val) : x(val), y(val), z(val) {}
+
+        void set(float _x, float _y, float _z) {
+            x = _x;
+            y = _y;
+            z = _z;
+        }
+        
+        void min_set(float _x, float _y, float _z) {
+            x = std::min(x,_x);
+            y = std::min(y,_y);
+            z = std::min(z,_z);
+        }
+        
+        void max_set(float _x, float _y, float _z) {
+            x = std::max(x,_x);
+            y = std::max(y,_y);
+            z = std::max(z,_z);
+        }
 
         vertex& operator+=(const vertex& rhs) {
             this->x += rhs.x;
@@ -26,6 +46,12 @@ class vertex {
             this->x/=scalar;
             this->y/=scalar;
             this->z/=scalar;
+        }
+        
+        vertex& operator*=(const float scalar) {
+            this->x*=scalar;
+            this->y*=scalar;
+            this->z*=scalar;
         }
 
         vertex operator+(const vertex& rhs) {
@@ -53,7 +79,7 @@ class vertex {
         }
 
         float mag(){
-            return sqrt(this->x*this->x + this->y*this->y + this->z*this->z);
+            return sqrt((this->x*this->x) + (this->y*this->y) + (this->z*this->z));
         }
 
 };

@@ -36,12 +36,18 @@ void ply_reader::read(string str, splat_model & model) {
             getline(file, line);
             istringstream iss(line);
             iss >> s.center.x >> s.center.y >> s.center.z;
-            if (i < 10)
-               cout << s.center.x << " " << s.center.y << " " << s.center.z << endl; 
+            if (i == 0) {
+                model.min_val.set(s.center.x, s.center.y, s.center.z);
+                model.max_val.set(s.center.x, s.center.y, s.center.z);
+            }
+
+            model.min_val.min_set(s.center.x, s.center.y, s.center.z);
+            model.max_val.max_set(s.center.x, s.center.y, s.center.z);
+
             model.splats.push_back(s);
         }
 
-        int num [num_verts];
+        //int num [num_verts];
 
         for (int i = 0; i < num_faces; ++i) {
             //compute normals 
@@ -52,14 +58,13 @@ void ply_reader::read(string str, splat_model & model) {
             vertex uv = model.splats[u].center - model.splats[v].center;
             vertex uw = model.splats[u].center - model.splats[w].center;
             vertex vw = model.splats[v].center - model.splats[w].center; 
-            //vertex normal = (uv).cross(uw)/(uv.cross(uw)).mag();
             vertex normal = (uv).cross(uw);
             model.splats[u].normal += normal;
-            ++num[u];
+            //++num[u];
             model.splats[v].normal += normal;
-            ++num[v];
+            //++num[v];
             model.splats[w].normal += normal;
-            ++num[w];
+            //++num[w];
 
             //compute splat width
             float distuv = uv.mag();
@@ -73,7 +78,11 @@ void ply_reader::read(string str, splat_model & model) {
 
         for (int i = 0; i < num_verts; ++i) {
             model.splats[i].size /= 2;
-            model.splats[i].normal /= num[i];
+            //model.splats[i].normal /= num[i];
+            //cout << model.splats[i].normal.x << " " << model.splats[i].normal.y << " " << model.splats[i].normal.z << endl;
+            //cout << model.splats[i].normal.mag() << endl;
+            model.splats[i].normal /= model.splats[i].normal.mag();
+            //cout << model.splats[i].normal.x << " " << model.splats[i].normal.y << " " << model.splats[i].normal.z << endl;
         }
     }
     cout << "DONE" << endl;
