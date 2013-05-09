@@ -59,6 +59,7 @@ void init(int argc, char* argv[]) {
     GLfloat mat_shininess[] = { 50.0 };
     GLfloat light_position[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat light_direction[] = { 0.0, -1.0, 0.0, 0.0 };
+    GLfloat light_ambient[] = { 0.0, 1.0, 0.0, 0.0 };
     glClearColor (0.0, 0.0, 0.0, 0.0);
     glShadeModel (GL_SMOOTH);
 
@@ -71,7 +72,8 @@ void init(int argc, char* argv[]) {
     
     //glEnable(GL_POINT_SMOOTH);
 
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    //glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glEnable(GL_NORMALIZE);
     glEnable(GL_DEPTH_TEST);
 
     glutDisplayFunc(display);
