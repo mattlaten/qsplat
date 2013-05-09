@@ -7,6 +7,7 @@
 
 #define WINDOW_TITLE_PREFIX "OpenGL"
 
+const double PI = atan(1.0)*4;
 
 //-----------------------------------//
 // Window Variables
@@ -20,8 +21,15 @@ int window_width = 800,
 // ----------------------------------//
 
 float cam_angle = 0.0;
-vertex cam_dir(0.0f, 0.0f, -1.0f);
-vertex cam_pos(0.0f, 0.2f, 0.5f);
+vertex cam_dir(0.0f, 0.0f, 0.0f);
+//vertex cam_pos(0.0f, 0.2f, 0.5f);
+
+float theta = 3*PI/4;
+float phi = PI/2;
+float r = 0.5;
+float diff = PI/180;
+
+vertex cam_pos(r*cos(theta)*sin(phi), r*cos(phi), r*sin(theta)*sin(phi));
 
 
 //-----------------------------------//
@@ -31,6 +39,28 @@ void init(int, char*[]);
 void keyboard(unsigned char, int, int);
 void resize(int, int);
 void display(void);
+
+
+//-----------------------------------//
+// Helper Functions 
+// ----------------------------------//
+
+double max(double a, double b) {
+    if (a > b) return a;
+    return b;
+}
+
+double min(double a, double b) {
+    return (a+b) - max(a,b);
+}
+
+float toRadians(float deg) {
+    return float(2*PI*deg/360.0);
+}
+
+float toDegrees(float rad) {
+    return float(360.0*rad/(2*PI));
+}
 
 using namespace std;
 
@@ -50,7 +80,6 @@ void init(int argc, char* argv[]) {
         //log.err("Couldn't create window");
         exit(EXIT_FAILURE);
     }
-
     glClearColor (0.0, 0.0, 0.0, 0.0);
 
 
@@ -93,33 +122,30 @@ void keyboard(unsigned char key, int x, int y) {
         case 27:
             exit(EXIT_SUCCESS);
         break;
-        case 'a':
-            cam_angle -= 0.01f;
-            cam_dir.x = sin(cam_angle);
-            cam_dir.z = -cos(cam_angle);
-        break;
-        case 'd':
-            cam_angle += 0.01f;
-            cam_dir.x = sin(cam_angle);
-            cam_dir.z = -cos(cam_angle);
-        break;
         case 'w':
-            cam_pos.x += cam_dir.x*0.01;
-            cam_pos.z += cam_dir.z*0.01;
+            phi = max(phi-diff,0.1);
         break;
         case 's':
-            cam_pos.x -= cam_dir.x*0.01;
-            cam_pos.z -= cam_dir.z*0.01;
+            phi = min(phi+diff,PI); 
+        break;
+        case 'a':
+            theta += diff;
+        break;
+        case 'd':
+            theta -= diff;
         break;
         case 'r':
-            cam_pos.y += 0.01;
+            r -= diff;
         break;
         case 'f':
-            cam_pos.y -= 0.01;
+            r += diff;
         break;
         default:
         break;
     }
+    cam_pos.x = r*cos(theta)*sin(phi);
+    cam_pos.y = r*cos(phi);
+    cam_pos.z = r*sin(phi)*sin(theta);
 
 }
 
