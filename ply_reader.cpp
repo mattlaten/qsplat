@@ -52,6 +52,7 @@ void ply_reader::read(string str, splat_model & model) {
             vertex uv = model.splats[u].center - model.splats[v].center;
             vertex uw = model.splats[u].center - model.splats[w].center;
             vertex vw = model.splats[v].center - model.splats[w].center; 
+            //vertex normal = (uv).cross(uw)/(uv.cross(uw)).mag();
             vertex normal = (uv).cross(uw);
             model.splats[u].normal += normal;
             ++num[u];

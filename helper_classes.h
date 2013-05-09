@@ -36,6 +36,10 @@ class vertex {
             return vertex(*this) -= rhs;
         }
 
+        vertex operator/(const float scalar) {
+            return vertex(*this) /= scalar;
+        }
+
         float dot(const vertex& rhs) {
             return this->x*rhs.x + this->y*rhs.y + this->z*rhs.z; 
         }

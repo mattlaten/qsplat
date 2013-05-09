@@ -7,11 +7,28 @@
 
 #define WINDOW_TITLE_PREFIX "OpenGL"
 
-int CurrentWidth = 800,
-    CurrentHeight = 600,
+
+//-----------------------------------//
+// Window Variables
+// ----------------------------------//
+int window_width = 800,
+    window_height = 600,
     WindowHandle = 0;
 
+//-----------------------------------//
+// Camera Variables 
+// ----------------------------------//
+
+float cam_angle = 0.0;
+vertex cam_dir(0.0f, 0.0f, -1.0f);
+vertex cam_pos(0.0f, 0.2f, 0.5f);
+
+
+//-----------------------------------//
+// Function Declarations 
+// ----------------------------------//
 void init(int, char*[]);
+void keyboard(unsigned char, int, int);
 void resize(int, int);
 void display(void);
 
@@ -23,8 +40,8 @@ splat_model model;
 
 void init(int argc, char* argv[]) {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DEPTH | GLUT_RGBA);
-    glutInitWindowSize(CurrentWidth, CurrentHeight);
+    glutInitDisplayMode(GLUT_DEPTH | GLUT_RGBA | GLUT_DOUBLE);
+    glutInitWindowSize(window_width, window_height);
     glutInitWindowPosition(100,100);
     glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 
@@ -36,48 +53,117 @@ void init(int argc, char* argv[]) {
 
     glClearColor (0.0, 0.0, 0.0, 0.0);
 
-    //glMatrixMode(GL_PROJECTION);
-    //gluPerspective(45, 1, 1, 100);
-    //glMatrixMode(GL_MODELVIEW);
-    //gluLookAt(0,0,10,0,0,0,0,1,0);
+
+    //lighting
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat mat_shininess[] = { 50.0 };
+    GLfloat light_position[] = { 0.0, 0.0, 0.0, 0.0 };
+    glClearColor (0.0, 0.0, 0.0, 0.0);
+    glShadeModel (GL_SMOOTH);
+
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+    //glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
     
-    /*  initialize viewing values  */
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
     glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_POINT_SMOOTH);
+
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
     glutDisplayFunc(display);
     glutIdleFunc(display);
     glutReshapeFunc(resize);
-    glutReshapeWindow(800,600);
+    glutKeyboardFunc(keyboard);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     cout << "OpenGL Version:" << endl;
     cout << glGetString(GL_VERSION) << endl;
     
 } 
 
-void resize(int Width, int Height) {
-    CurrentWidth = Width;
-    CurrentHeight = Height;
-    glViewport(0, 0, CurrentWidth, CurrentHeight);
+void keyboard(unsigned char key, int x, int y) {
+    switch (key){
+        case 27:
+            exit(EXIT_SUCCESS);
+        break;
+        case 'a':
+            cam_angle -= 0.01f;
+            cam_dir.x = sin(cam_angle);
+            cam_dir.z = -cos(cam_angle);
+        break;
+        case 'd':
+            cam_angle += 0.01f;
+            cam_dir.x = sin(cam_angle);
+            cam_dir.z = -cos(cam_angle);
+        break;
+        case 'w':
+            cam_pos.x += cam_dir.x*0.01;
+            cam_pos.z += cam_dir.z*0.01;
+        break;
+        case 's':
+            cam_pos.x -= cam_dir.x*0.01;
+            cam_pos.z -= cam_dir.z*0.01;
+        break;
+        case 'r':
+            cam_pos.y += 0.01;
+        break;
+        case 'f':
+            cam_pos.y -= 0.01;
+        break;
+        default:
+        break;
+    }
+
+}
+
+void resize(int w, int h) {
+    cout << "resizing" << endl;
+    if (h == 0) 
+        h = 1;
+    float ratio = w*1.0/h;
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    window_width = w;
+    window_height = h;
+    glViewport(0, 0, window_width, window_height);
+    gluPerspective(45,ratio,0.01,1000);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 void display(void) {
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    //gluPerspective(45.0, CurrentWidth/(float)CurrentHeight, 0.1, 100.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glMatrixMode(GL_MODELVIEW);
-    
-    glBegin(GL_POINTS);
+  
+    glLoadIdentity();
+    /*gluLookAt   (
+                    cam_pos.x, cam_pos.y, cam_pos.z,
+                    cam_dir.x, cam_dir.y, cam_dir.z,
+                    0.0f, 1.0f, 0.0f
+                );
+    */
+    gluLookAt   (
+                    cam_pos.x, cam_pos.y, cam_pos.z,
+                    0, 0, 0,
+                    0.0f, 1.0f, 0.0f
+                );
+
     glColor3f(1.0, 1.0, 1.0);
+    //glPointSize(10.0f);
+    glBegin(GL_POINTS);
     for (vector<splat>::iterator s = model.splats.begin(); s != model.splats.end(); ++s) {
+        glPointSize(s->size*1.0f);
+        //cout << s->size << endl;
+        glNormal3f(s->normal.x, s->normal.y, s->normal.z);
+        //cout << s->normal.x << endl;
+        //cout << s->normal.mag() << endl;
         glVertex3f(s->center.x, s->center.y, s->center.z);
     }
     glEnd();
 
-    glFlush();
+    glutSwapBuffers();
 }
 
 int main(int argc, char* argv[]) {
