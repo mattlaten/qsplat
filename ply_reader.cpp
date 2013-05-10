@@ -73,8 +73,7 @@ void ply_reader::read(string str, splat_model & model) {
 
         for (int i = 0; i < num_verts; ++i) {
             model.splats[i].size /= 2;
-            if (model.splats[i].normal.mag() != 0)
-                model.splats[i].normal /= model.splats[i].normal.mag();
+            model.splats[i].normal /= model.splats[i].normal.mag();
         }
     }
     cout << "DONE" << endl;
