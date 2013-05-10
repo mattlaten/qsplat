@@ -4,6 +4,7 @@
 #include <GL/freeglut.h>
 #include <iostream>
 #include <ctime>
+#include "pre_processor.h"
 #include "ply_reader.h"
 
 #define WINDOW_TITLE_PREFIX "QSplat"
@@ -40,6 +41,13 @@ clock_t t;
 float fps;
 
 //-----------------------------------//
+// Rendering Variables
+//-----------------------------------//
+
+double epsilon = 0.001;
+double splat_diff = 0.001;
+
+//-----------------------------------//
 // Function Declarations 
 // ----------------------------------//
 void init(int, char*[]);
@@ -52,13 +60,13 @@ void display(void);
 // Helper Functions 
 // ----------------------------------//
 
-double max(double a, double b) {
+double fast_max(double a, double b) {
     if (a > b) return a;
     return b;
 }
 
-double min(double a, double b) {
-    return (a+b) - max(a,b);
+double fast_min(double a, double b) {
+    return (a+b) - fast_max(a,b);
 }
 
 float toRadians(float deg) {
@@ -72,7 +80,9 @@ float toDegrees(float rad) {
 using namespace std;
 
 ply_reader ply;
+pre_processor pre;
 splat_model model;
+node * root;
 
 
 void init(int argc, char* argv[]) {
@@ -124,10 +134,10 @@ void keyboard(unsigned char key, int x, int y) {
             exit(EXIT_SUCCESS);
         break;
         case 'w':
-            phi = max(phi-diff,0.1);
+            phi = fast_max(phi-diff,0.1);
         break;
         case 's':
-            phi = min(phi+diff,PI); 
+            phi = fast_min(phi+diff,PI); 
         break;
         case 'a':
             theta += diff;
@@ -140,6 +150,12 @@ void keyboard(unsigned char key, int x, int y) {
         break;
         case 'f':
             r += diff;
+        break;
+        case 'x':
+            epsilon += splat_diff;
+        break;
+        case 'z':
+            epsilon = fast_max(epsilon - splat_diff, 0);
         break;
         default:
         break;
@@ -165,6 +181,45 @@ void resize(int w, int h) {
     glLoadIdentity();
 }
 
+int traverse(node * n)
+{
+    if (n->s.normal.dot(cam_pos) < 0 || n->s.size == 0) {
+        //cout << "DON'T DRAW" << endl;
+        return 0;
+    }
+    else if (n->is_leaf()) {
+        //cout << "RENDERING" << endl;
+        glPointSize(n->s.size*3.5*window_width/(n->s.center-cam_pos).mag());
+        glBegin(GL_POINTS);
+            glNormal3f(n->s.normal.x, n->s.normal.y, n->s.normal.z);
+            glVertex3f(n->s.center.x, n->s.center.y, n->s.center.z);
+        glEnd();
+        return 0;
+    }
+    else if (n->s.size < epsilon) {
+        //cout << "RENDERING 2" << endl;
+        glPointSize(n->s.size*3.5*window_width/(n->s.center-cam_pos).mag());
+        glBegin(GL_POINTS);
+            glNormal3f(n->s.normal.x, n->s.normal.y, n->s.normal.z);
+            glVertex3f(n->s.center.x, n->s.center.y, n->s.center.z);
+        glEnd();
+        return 0;
+    }
+    else {
+        //cout << "TRAVERSING" << endl;
+        if (n->left != NULL) {
+            //cout << "LEFT: " << n->left << endl;
+            traverse(n->left);
+        }
+        if (n->right != NULL) {
+            //cout << "RIGHT: " << n->right << endl;
+            traverse(n->right);
+        }
+        return 0;
+    }
+}
+
+
 void display(void) {
     t = clock();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -177,16 +232,22 @@ void display(void) {
                 );
 
     glColor3f(1.0, 1.0, 1.0);
-    
+   
+   /*
     for (vector<splat>::iterator s = model.splats.begin(); s != model.splats.end(); ++s) {
         glPointSize(s->size*3.5*window_width/(s->center-cam_pos).mag());
-        if (s->normal.dot(cam_pos) < 0)
+        if (s->normal.dot(cam_pos) < 0 || s->size == 0)
             continue;
         glBegin(GL_POINTS);
             glNormal3f(s->normal.x, s->normal.y, s->normal.z);
             glVertex3f(s->center.x, s->center.y, s->center.z);
         glEnd();
     }
+    */
+
+    //rendering
+    traverse(root);
+
 
     glutSwapBuffers();
     t = clock()-t;
@@ -199,6 +260,8 @@ void display(void) {
 
 int main(int argc, char* argv[]) {
     ply.read("bunny/reconstruction/bun_zipper.ply", model);        
+    root = pre.build_tree(model.splats.begin(), model.splats.end(), model.min_val, model.max_val);
+    cout << "HERE" << endl;
     cout << model.min_val.x << " " << model.min_val.y << " " << model.min_val.z << endl;
     cout << model.max_val.x << " " << model.max_val.y << " " << model.max_val.z << endl;
     init(argc, argv);

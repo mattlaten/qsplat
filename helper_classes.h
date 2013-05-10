@@ -1,7 +1,7 @@
 #include <math.h>
 
-#ifndef HELPER
-#define HELPER
+#ifndef _HELPER
+#define _HELPER
 
 class vertex {
     public:
@@ -19,16 +19,27 @@ class vertex {
             z = _z;
         }
         
+        float fast_max(float a, float b)
+        {
+            if (a > b) return a;
+            return b;
+        }
+
+        float fast_min(float a, float b)
+        {
+            return (a+b) - fast_max(a,b);
+        }
+
         void min_set(float _x, float _y, float _z) {
-            x = std::min(x,_x);
-            y = std::min(y,_y);
-            z = std::min(z,_z);
+            x = fast_min(x,_x);
+            y = fast_min(y,_y);
+            z = fast_min(z,_z);
         }
         
         void max_set(float _x, float _y, float _z) {
-            x = std::max(x,_x);
-            y = std::max(y,_y);
-            z = std::max(z,_z);
+            x = fast_max(x,_x);
+            y = fast_max(y,_y);
+            z = fast_max(z,_z);
         }
 
         vertex& operator+=(const vertex& rhs) {

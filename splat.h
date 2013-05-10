@@ -1,7 +1,7 @@
 #include "helper_classes.h"
 
-#ifndef SPLAT
-#define SPLAT
+#ifndef _SPLAT
+#define _SPLAT
 class splat {
     public:
         vertex center;
