@@ -44,8 +44,10 @@ float fps;
 // Rendering Variables
 //-----------------------------------//
 
-double epsilon = 0.001;
+double epsilon = 0.0;
 double splat_diff = 0.001;
+bool back_cull = true;
+bool frust_cull = true;
 
 //-----------------------------------//
 // Function Declarations 
@@ -111,8 +113,6 @@ void init(int argc, char* argv[]) {
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     
-    //glEnable(GL_POINT_SMOOTH);
-
     glEnable(GL_NORMALIZE);
     glEnable(GL_DEPTH_TEST);
 
@@ -157,6 +157,9 @@ void keyboard(unsigned char key, int x, int y) {
         case 'z':
             epsilon = fast_max(epsilon - splat_diff, 0);
         break;
+        case 'c':
+            back_cull = !back_cull;
+        break;
         default:
         break;
     }
@@ -167,7 +170,6 @@ void keyboard(unsigned char key, int x, int y) {
 }
 
 void resize(int w, int h) {
-    cout << "resizing" << endl;
     if (h == 0) 
         h = 1;
     float ratio = w*1.0/h;
@@ -183,26 +185,31 @@ void resize(int w, int h) {
 
 int traverse(node * n)
 {
-    if (n->s.normal.dot(cam_pos) < 0 || n->s.size == 0) {
+    if (n->cone*back_cull + n->s.normal.dot(cam_pos) < 0 || n->s.size == 0) {
+    //if (false) { 
         //cout << "DON'T DRAW" << endl;
         return 0;
     }
     else if (n->is_leaf()) {
         //cout << "RENDERING" << endl;
-        glPointSize(n->s.size*3.5*window_width/(n->s.center-cam_pos).mag());
-        glBegin(GL_POINTS);
-            glNormal3f(n->s.normal.x, n->s.normal.y, n->s.normal.z);
-            glVertex3f(n->s.center.x, n->s.center.y, n->s.center.z);
-        glEnd();
+        if (!isnan(n->s.normal.mag())) {
+            glPointSize(n->s.size*3.5*window_width/(n->s.center-cam_pos).mag());
+            glBegin(GL_POINTS);
+                glNormal3f(n->s.normal.x, n->s.normal.y, n->s.normal.z);
+                glVertex3f(n->s.center.x, n->s.center.y, n->s.center.z);
+            glEnd();
+        }
         return 0;
     }
     else if (n->s.size < epsilon) {
         //cout << "RENDERING 2" << endl;
-        glPointSize(n->s.size*3.5*window_width/(n->s.center-cam_pos).mag());
-        glBegin(GL_POINTS);
-            glNormal3f(n->s.normal.x, n->s.normal.y, n->s.normal.z);
-            glVertex3f(n->s.center.x, n->s.center.y, n->s.center.z);
-        glEnd();
+        if (!isnan(n->s.normal.mag())) {
+            glPointSize(n->s.size*3.5*window_width/(n->s.center-cam_pos).mag());
+            glBegin(GL_POINTS);
+                glNormal3f(n->s.normal.x, n->s.normal.y, n->s.normal.z);
+                glVertex3f(n->s.center.x, n->s.center.y, n->s.center.z);
+            glEnd();
+        }
         return 0;
     }
     else {
@@ -219,6 +226,9 @@ int traverse(node * n)
     }
 }
 
+void frustum(vertex pos, vertex dir, vertex up) {
+
+}
 
 void display(void) {
     t = clock();
@@ -233,18 +243,6 @@ void display(void) {
 
     glColor3f(1.0, 1.0, 1.0);
    
-   /*
-    for (vector<splat>::iterator s = model.splats.begin(); s != model.splats.end(); ++s) {
-        glPointSize(s->size*3.5*window_width/(s->center-cam_pos).mag());
-        if (s->normal.dot(cam_pos) < 0 || s->size == 0)
-            continue;
-        glBegin(GL_POINTS);
-            glNormal3f(s->normal.x, s->normal.y, s->normal.z);
-            glVertex3f(s->center.x, s->center.y, s->center.z);
-        glEnd();
-    }
-    */
-
     //rendering
     traverse(root);
 
@@ -252,18 +250,22 @@ void display(void) {
     glutSwapBuffers();
     t = clock()-t;
     char buff[100];
-    sprintf(buff, "%s: %.2ffps", WINDOW_TITLE_PREFIX, fps);
+    sprintf(buff, "%s | %s | %.2ffps " , WINDOW_TITLE_PREFIX, back_cull? "Normal [C]one Based Culling" : "[C]onventional Backface Culling", fps);
     glutSetWindowTitle(buff);
     fps = 1000/(float)t;
     //cout << fps << endl;
 }
 
 int main(int argc, char* argv[]) {
-    ply.read("bunny/reconstruction/bun_zipper.ply", model);        
+    //ply.read("bunny/reconstruction/bun_zipper.ply", model);        
+    string filename;
+    cout << "Enter in filename:" <<  endl;
+    cin >> filename; 
+    //ply.read("dragon_recon/dragon_vrip.ply", model);        
+    ply.read(filename, model);        
     root = pre.build_tree(model.splats.begin(), model.splats.end(), model.min_val, model.max_val);
-    cout << "HERE" << endl;
-    cout << model.min_val.x << " " << model.min_val.y << " " << model.min_val.z << endl;
-    cout << model.max_val.x << " " << model.max_val.y << " " << model.max_val.z << endl;
+    //cout << model.min_val.x << " " << model.min_val.y << " " << model.min_val.z << endl;
+    //cout << model.max_val.x << " " << model.max_val.y << " " << model.max_val.z << endl;
     init(argc, argv);
     glutMainLoop();
     exit(EXIT_SUCCESS);

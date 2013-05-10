@@ -1,13 +1,9 @@
 #include "pre_processor.h"
 #include <algorithm>
 #include <iostream>
+#include <math.h>
 
 using namespace std;
-
-void pre_processor::process(splat_model & model)
-{
-
-}
 
 //--------------------------------------
 // Sort Functions
@@ -51,7 +47,6 @@ vertex partition(vector<splat>::iterator start, vector<splat>::iterator end, ver
             return vertex(0,0,midpoint->center.z);
         }
     }
-
 }
 
 node * bounding_sphere(node * left, node * right) {
@@ -65,7 +60,23 @@ node * bounding_sphere(node * left, node * right) {
     splat s(m.x, m.y, m.z);
     s.size = r;
     s.normal = left->s.normal + right->s.normal;
-    s.normal /= s.normal.mag();
+    if (s.normal.mag() != 0)
+        s.normal /= s.normal.mag();
+
+    float left_cone = 0;    
+    float right_cone = 0;    
+
+    if (left->is_leaf()) {
+        left_cone = abs(acos(s.normal.dot(left->s.normal)));
+    } else {
+        left_cone = abs(acos(left->cone));
+    }
+    if (right->is_leaf()) {
+        right_cone = abs(acos(s.normal.dot(right->s.normal)));
+    } else {
+        right_cone = abs(acos(right->cone));
+    }
+    n->cone = cos(max(left_cone, right_cone));
     n->s = s;
     return n;
 }
@@ -76,7 +87,6 @@ node * pre_processor::build_tree(vector<splat>::iterator start, vector<splat>::i
     int middle = distance(start, end)/2;
     if (start == end) {
         node * n = new node(*start);
-        n->leaf = true;
         return n; 
     } else {
         vertex left_max = BBmax;

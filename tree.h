@@ -6,16 +6,16 @@ class node {
         splat s;
         node * left;
         node * right;
-        bool leaf = false;
+        float cone;
 
-        node() : left(NULL), right(NULL){
+        node() : left(nullptr), right(nullptr), cone(0){
             }
 
-        node(splat & _s) : s(_s), left(NULL), right(NULL){
+        node(splat & _s) : s(_s), left(nullptr), right(nullptr), cone(0){
         }
 
         bool is_leaf() {
-            return (left == NULL) && (right == NULL);
+            return (left == nullptr) && (right == nullptr);
         }
 };
 
