@@ -11,6 +11,9 @@ void ply_reader::read(string str, splat_model & model) {
     file.open(str.c_str());
     string line;
 
+    ofstream outfile;
+    outfile.open((str + ".qs").c_str());
+
     int num_verts = 0;
     int num_faces = 0;
 
@@ -70,12 +73,20 @@ void ply_reader::read(string str, splat_model & model) {
             model.splats[v].size = max(max(model.splats[v].size, distuv), distvw);
             model.splats[w].size = max(max(model.splats[w].size, distvw), distuw);
         }
+        
+        outfile <<  "center_x center_y center_z normal_x normal_y normal_z size" << endl;
 
         for (int i = 0; i < num_verts; ++i) {
             model.splats[i].size /= 2;
             model.splats[i].normal /= model.splats[i].normal.mag();
+
+            //write to disk
+            splat s = model.splats[i];
+            outfile << s.center.x << " " << s.center.y << " " << s.center.z << " ";
+            outfile << s.normal.x << " " << s.normal.y << " " << s.normal.z << " ";
+            outfile << s.size << endl;
         }
     }
-    cout << "DONE" << endl;
     file.close();
+    outfile.close();
 }

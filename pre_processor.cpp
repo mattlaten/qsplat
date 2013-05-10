@@ -109,6 +109,5 @@ node * pre_processor::build_tree(vector<splat>::iterator start, vector<splat>::i
         node * right = build_tree(start+middle+1, end, right_min, BBmax);
         
         return bounding_sphere(left, right); 
-        
     }
 }
