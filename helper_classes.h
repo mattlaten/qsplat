@@ -1,5 +1,8 @@
 #include <math.h>
 
+#ifndef HELPER
+#define HELPER
+
 class vertex {
     public:
         float x, y, z;
@@ -65,6 +68,10 @@ class vertex {
         vertex operator/(const float scalar) {
             return vertex(*this) /= scalar;
         }
+        
+        vertex operator*(const float scalar) {
+            return vertex(*this) *= scalar;
+        }
 
         float dot(const vertex& rhs) {
             return this->x*rhs.x + this->y*rhs.y + this->z*rhs.z; 
@@ -104,3 +111,5 @@ class triangle {
     public:
         vertex u, v, w;
 };
+
+#endif

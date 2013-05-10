@@ -1,8 +1,14 @@
 #include "splat.h"
 
 class node {
-    splat s;
-    node * left;
-    node * right;
+    public:
+        splat s;
+        node * left;
+        node * right;
+
+        node(splat & _s)
+        {
+            s = _s;   
+        }
 };
 

@@ -1,5 +1,7 @@
 #include "helper_classes.h"
 
+#ifndef SPLAT
+#define SPLAT
 class splat {
     public:
         vertex center;
@@ -14,3 +16,4 @@ class splat {
             center = vertex(x,y,z);
         }
 };
+#endif

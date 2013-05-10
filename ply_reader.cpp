@@ -47,8 +47,6 @@ void ply_reader::read(string str, splat_model & model) {
             model.splats.push_back(s);
         }
 
-        //int num [num_verts];
-
         for (int i = 0; i < num_faces; ++i) {
             //compute normals 
             getline(file, line);
@@ -60,11 +58,8 @@ void ply_reader::read(string str, splat_model & model) {
             vertex vw = model.splats[v].center - model.splats[w].center; 
             vertex normal = (uv).cross(uw);
             model.splats[u].normal += normal;
-            //++num[u];
             model.splats[v].normal += normal;
-            //++num[v];
             model.splats[w].normal += normal;
-            //++num[w];
 
             //compute splat width
             float distuv = uv.mag();
@@ -78,10 +73,10 @@ void ply_reader::read(string str, splat_model & model) {
 
         for (int i = 0; i < num_verts; ++i) {
             model.splats[i].size /= 2;
-            //model.splats[i].normal /= num[i];
-            //cout << model.splats[i].normal.x << " " << model.splats[i].normal.y << " " << model.splats[i].normal.z << endl;
-            //cout << model.splats[i].normal.mag() << endl;
+            cout << model.splats[i].normal.x << " " << model.splats[i].normal.y << " " << model.splats[i].normal.z << endl;
+            cout << model.splats[i].normal.mag() << endl;
             model.splats[i].normal /= model.splats[i].normal.mag();
+            //cout << model.splats[i].normal.mag() << endl;
             //cout << model.splats[i].normal.x << " " << model.splats[i].normal.y << " " << model.splats[i].normal.z << endl;
         }
     }
